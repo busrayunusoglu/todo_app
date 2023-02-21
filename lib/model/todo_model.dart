@@ -25,4 +25,9 @@ class TodoModel {
     map['completed'] = completed;
     return map;
   }
+
+  @override
+  String toString() {
+    return 'TodoModel{ userId: $userId, id: $id, title: $title, completed: $completed}';
+  }
 }

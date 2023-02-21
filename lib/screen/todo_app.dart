@@ -7,6 +7,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:todo_app/bloc/tap_bar/tap_bar_cubit.dart';
 import 'package:todo_app/model/todo_model.dart';
 import 'package:todo_app/repository/todo_repository.dart';
+import 'package:todo_app/services/todo_services.dart';
 import 'package:todo_app/utils/constants.dart';
 import 'package:todo_app/widgets/text_field_widget.dart';
 
@@ -29,6 +30,7 @@ class _TodoAppState extends State<TodoApp> {
       const Color(0xFF7E8CA0).withOpacity(0.8)
     ];
     List<double> stops = [0.0, 1.4];
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => TapBarCubit()),
@@ -105,12 +107,11 @@ class _TodoAppState extends State<TodoApp> {
             SizedBox(
               height: Adaptive.h(2),
             ),
-
             BlocBuilder<TapBarCubit, TapBarState>(
               builder: (context, state) {
                 return Container(
                   width: Adaptive.w(92),
-                  height: Adaptive.h(6),
+                  height: Adaptive.h(7),
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: colors2,
@@ -144,8 +145,8 @@ class _TodoAppState extends State<TodoApp> {
                                                 .read<TapBarCubit>()
                                                 .currentIndex ==
                                             index
-                                        ? Constants.mainColor
-                                        : Constants.cursorColor,
+                                        ? Constants.cursorColor
+                                        : Constants.mainColor,
                                     fontFamily: 'FontBold',
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -178,8 +179,8 @@ class _TodoAppState extends State<TodoApp> {
                                                 .read<TapBarCubit>()
                                                 .currentIndex ==
                                             index
-                                        ? Constants.mainColor
-                                        : Constants.cursorColor,
+                                        ? Constants.cursorColor
+                                        : Constants.mainColor,
                                     fontFamily: 'FontBold',
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -198,7 +199,6 @@ class _TodoAppState extends State<TodoApp> {
             SizedBox(
               height: Adaptive.h(2),
             ),
-
             BlocBuilder<TapBarCubit, TapBarState>(
               builder: (context, state) {
                 if (state is AllTasks) {
@@ -209,11 +209,16 @@ class _TodoAppState extends State<TodoApp> {
                       future: repo.todo(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          var userOne = snapshot.data!
+                              .where((e) => e!.userId == 1)
+                              .toList();
+                          print(userOne.toString());
                           return SizedBox(
                             height: Adaptive.h(100),
                             width: Adaptive.w(100),
                             child: ListView.builder(
-                              itemCount: 20,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: userOne.length,
                               padding: const EdgeInsets.all(0),
                               itemBuilder: (BuildContext c, int i) {
                                 return Column(
@@ -235,22 +240,8 @@ class _TodoAppState extends State<TodoApp> {
                                           SizedBox(
                                             width: Adaptive.w(80),
                                             child: ListTile(
-                                              title: snapshot
-                                                          .data![i]!.userId ==
-                                                      1
-                                                  ? Text(
-                                                      "${snapshot.data![i]!.id}) ${snapshot.data![i]!.title}",
-                                                      style: const TextStyle(
-                                                        fontFamily:
-                                                            "FontMedium",
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontSize: 16,
-                                                        color:
-                                                            Constants.mainColor,
-                                                      ),
-                                                    )
-                                                  : null,
+                                              title: Text(
+                                                  '${userOne[i]!.title.toString()}'),
                                             ),
                                           ),
                                           SvgPicture.asset(
@@ -278,57 +269,165 @@ class _TodoAppState extends State<TodoApp> {
                   );
                 }
 
+                if (state is CompletedTask) {
+                  return SizedBox(
+                    width: Adaptive.w(92),
+                    height: Adaptive.h(60),
+                    child: FutureBuilder<List<TodoModel?>?>(
+                      future: repo.todo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          var userOne = snapshot.data!
+                              .where(
+                                  (e) => e!.userId == 1 && e.completed == true)
+                              .toList();
+                          return SizedBox(
+                            height: Adaptive.h(100),
+                            width: Adaptive.w(100),
+                            child: ListView.builder(
+                              itemCount: userOne.length,
+                              padding: const EdgeInsets.all(0),
+                              itemBuilder: (BuildContext c, int d) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      width: Adaptive.w(100),
+                                      height: Adaptive.h(7),
+                                      decoration: BoxDecoration(
+                                        color: Constants.textThreeColor
+                                            .withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        gradient: LinearGradient(
+                                          colors: colors2,
+                                          stops: stops,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: Adaptive.w(80),
+                                            child: ListTile(
+                                                title: Text(
+                                              userOne[d]!.title.toString(),
+                                              style: const TextStyle(
+                                                fontFamily: "FontMedium",
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                                color: Constants.mainColor,
+                                              ),
+                                            )),
+                                          ),
+                                          SvgPicture.asset(
+                                            "assets/icons/remove.svg",
+                                            width: Adaptive.w(8),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: Adaptive.h(1),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return Container(
+                            width: 25,
+                            height: 25,
+                            color: Colors.red,
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }
+
+                if (state is UncompletedTask) {
+                  return SizedBox(
+                    width: Adaptive.w(92),
+                    height: Adaptive.h(60),
+                    child: FutureBuilder<List<TodoModel?>?>(
+                      future: repo.todo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          var userOne = snapshot.data!
+                              .where(
+                                  (e) => e!.userId == 1 && e.completed == false)
+                              .toList();
+                          return SizedBox(
+                            height: Adaptive.h(100),
+                            width: Adaptive.w(100),
+                            child: ListView.builder(
+                              itemCount: userOne.length,
+                              padding: const EdgeInsets.all(0),
+                              itemBuilder: (BuildContext c, int d) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      width: Adaptive.w(100),
+                                      height: Adaptive.h(7),
+                                      decoration: BoxDecoration(
+                                        color: Constants.textThreeColor
+                                            .withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        gradient: LinearGradient(
+                                          colors: colors2,
+                                          stops: stops,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: Adaptive.w(80),
+                                            child: ListTile(
+                                                title: Text(
+                                              userOne[d]!.title.toString(),
+                                              style: const TextStyle(
+                                                fontFamily: "FontMedium",
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                                color: Constants.mainColor,
+                                              ),
+                                            )),
+                                          ),
+                                          SvgPicture.asset(
+                                            "assets/icons/remove.svg",
+                                            width: Adaptive.w(8),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: Adaptive.h(1),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return Container(
+                            width: 25,
+                            height: 25,
+                            color: Colors.red,
+                          );
+                        }
+                      },
+                    ),
+                  );
+                }
+
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               },
             ),
-
-            // BlocBuilder<TapBarCubit, TapBarState>(
-            //   builder: (context, state) {
-            //     return const Text("");
-            //   },
-            // ),
-            // SizedBox(
-            //   height: Adaptive.h(2),
-            // ),
-            // BlocBuilder<TapBarCubit, TapBarState>(
-            //   builder: (context, state) {
-            //     if (state is CompletedTask) {
-            //       return FutureBuilder<List<TodoModel?>?>(
-            //         future: repo.todo(),
-            //         builder: (context, snapshot) {
-            //           if (snapshot.hasData) {
-            //             return SizedBox(
-            //               height: Adaptive.h(100),
-            //               width: Adaptive.w(100),
-            //               child: ListView.builder(
-            //                 itemCount: 20,
-            //                 itemBuilder: (BuildContext c, int i) {
-            //                   return ListTile(
-            //                     title: snapshot.data![i]!.userId == 1
-            //                         ? Text(
-            //                             snapshot.data![i]!.title.toString(),
-            //                           )
-            //                         : null,
-            //                   );
-            //                 },
-            //               ),
-            //             );
-            //           } else if (snapshot.hasError) {
-            //             return const CircularProgressIndicator();
-            //           } else {
-            //             return Container();
-            //           }
-            //         },
-            //       );
-            //     }
-
-            //     return const Center(
-            //       child: CircularProgressIndicator(),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),
