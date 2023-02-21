@@ -39,6 +39,7 @@ dependencies:
   http: ^0.13.5
   flutter_bloc: ^8.0.0
   flutter_svg: 0.23.0+1
+  checkbox_formfield: ^0.2.0
 
 dev_dependencies:
   flutter_test:
