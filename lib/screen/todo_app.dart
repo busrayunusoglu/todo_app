@@ -7,7 +7,6 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:todo_app/bloc/tap_bar/tap_bar_cubit.dart';
 import 'package:todo_app/model/todo_model.dart';
 import 'package:todo_app/repository/todo_repository.dart';
-import 'package:todo_app/services/todo_services.dart';
 import 'package:todo_app/utils/constants.dart';
 import 'package:todo_app/widgets/text_field_widget.dart';
 
@@ -212,7 +211,6 @@ class _TodoAppState extends State<TodoApp> {
                           var userOne = snapshot.data!
                               .where((e) => e!.userId == 1)
                               .toList();
-                          print(userOne.toString());
                           return SizedBox(
                             height: Adaptive.h(100),
                             width: Adaptive.w(100),
@@ -241,7 +239,7 @@ class _TodoAppState extends State<TodoApp> {
                                             width: Adaptive.w(80),
                                             child: ListTile(
                                               title: Text(
-                                                  '${userOne[i]!.title.toString()}'),
+                                                  userOne[i]!.title.toString()),
                                             ),
                                           ),
                                           SvgPicture.asset(
