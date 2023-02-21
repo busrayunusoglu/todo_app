@@ -102,101 +102,186 @@ class _TodoAppState extends State<TodoApp> {
                     ),
                   ],
                 )),
+            SizedBox(
+              height: Adaptive.h(2),
+            ),
 
-            SizedBox(
-              height: Adaptive.h(2),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: Adaptive.w(7)),
-              child: Row(
-                children: [
-                  const Text(
-                    "TODOLAR",
-                    style: TextStyle(
-                      fontFamily: "FontMedium",
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      color: Constants.cursorColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: Adaptive.h(2),
-            ),
-            SizedBox(
-              width: Adaptive.w(92),
-              height: Adaptive.h(60),
-              child: FutureBuilder<List<TodoModel?>?>(
-                future: repo.todo(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return SizedBox(
-                      height: Adaptive.h(100),
-                      width: Adaptive.w(100),
-                      child: ListView.builder(
-                        itemCount: 20,
-                        padding: const EdgeInsets.all(0),
-                        itemBuilder: (BuildContext c, int i) {
-                          return Column(
-                            children: [
-                              Container(
-                                width: Adaptive.w(100),
-                                height: Adaptive.h(7),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Constants.textThreeColor.withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(10),
-                                  gradient: LinearGradient(
-                                    colors: colors2,
-                                    stops: stops,
+            BlocBuilder<TapBarCubit, TapBarState>(
+              builder: (context, state) {
+                return Container(
+                  width: Adaptive.w(92),
+                  height: Adaptive.h(6),
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: colors2,
+                        stops: stops,
+                      ),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 3,
+                    itemBuilder: (context, index) {
+                      List<String> listName = [
+                        "Tümü",
+                        "Tamamlanmış",
+                        "Tamamlanmamış",
+                      ];
+
+                      if (index == 0) {
+                        return InkWell(
+                          onTap: () {
+                            context.read<TapBarCubit>().changeTabbar(index);
+                          },
+                          child: SizedBox(
+                              width: Adaptive.w(12),
+                              height: Adaptive.h(6),
+                              child: Center(
+                                child: Text(
+                                  listName[index],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: context
+                                                .read<TapBarCubit>()
+                                                .currentIndex ==
+                                            index
+                                        ? Constants.mainColor
+                                        : Constants.cursorColor,
+                                    fontFamily: 'FontBold',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width: Adaptive.w(80),
-                                      child: ListTile(
-                                        title: snapshot.data![i]!.userId == 1
-                                            ? Text(
-                                                "${snapshot.data![i]!.id}) ${snapshot.data![i]!.title}",
-                                                style: const TextStyle(
-                                                  fontFamily: "FontMedium",
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16,
-                                                  color: Constants.mainColor,
-                                                ),
-                                              )
-                                            : null,
-                                      ),
-                                    ),
-                                    SvgPicture.asset(
-                                      "assets/icons/remove.svg",
-                                      width: Adaptive.w(8),
-                                    )
-                                  ],
+                              )),
+                        );
+                      }
+                      return InkWell(
+                        onTap: () {
+                          if (context.read<TapBarCubit>().currentIndex !=
+                              index) {
+                            context.read<TapBarCubit>().changeTabbar(index);
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: Adaptive.w(2),
+                            ),
+                            SizedBox(
+                              width: Adaptive.w(38),
+                              height: Adaptive.h(6),
+                              child: Center(
+                                child: Text(
+                                  listName[index],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: context
+                                                .read<TapBarCubit>()
+                                                .currentIndex ==
+                                            index
+                                        ? Constants.mainColor
+                                        : Constants.cursorColor,
+                                    fontFamily: 'FontBold',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                              SizedBox(
-                                height: Adaptive.h(1),
-                              )
-                            ],
-                          );
-                        },
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const CircularProgressIndicator();
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
-
             SizedBox(
               height: Adaptive.h(2),
+            ),
+
+            BlocBuilder<TapBarCubit, TapBarState>(
+              builder: (context, state) {
+                if (state is AllTasks) {
+                  return SizedBox(
+                    width: Adaptive.w(92),
+                    height: Adaptive.h(60),
+                    child: FutureBuilder<List<TodoModel?>?>(
+                      future: repo.todo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return SizedBox(
+                            height: Adaptive.h(100),
+                            width: Adaptive.w(100),
+                            child: ListView.builder(
+                              itemCount: 20,
+                              padding: const EdgeInsets.all(0),
+                              itemBuilder: (BuildContext c, int i) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      width: Adaptive.w(100),
+                                      height: Adaptive.h(7),
+                                      decoration: BoxDecoration(
+                                        color: Constants.textThreeColor
+                                            .withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        gradient: LinearGradient(
+                                          colors: colors2,
+                                          stops: stops,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: Adaptive.w(80),
+                                            child: ListTile(
+                                              title: snapshot
+                                                          .data![i]!.userId ==
+                                                      1
+                                                  ? Text(
+                                                      "${snapshot.data![i]!.id}) ${snapshot.data![i]!.title}",
+                                                      style: const TextStyle(
+                                                        fontFamily:
+                                                            "FontMedium",
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 16,
+                                                        color:
+                                                            Constants.mainColor,
+                                                      ),
+                                                    )
+                                                  : null,
+                                            ),
+                                          ),
+                                          SvgPicture.asset(
+                                            "assets/icons/remove.svg",
+                                            width: Adaptive.w(8),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: Adaptive.h(1),
+                                    )
+                                  ],
+                                );
+                              },
+                            ),
+                          );
+                        } else if (snapshot.hasError) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  );
+                }
+
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
             ),
 
             // BlocBuilder<TapBarCubit, TapBarState>(
